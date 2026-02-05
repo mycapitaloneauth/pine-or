@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>body{font-family:Arial,Helvetica,sans-serif;padding:20px}button{margin:4px}</style>
+</head>
+<body>
+  <h2>Backend Admin</h2>
+  <label>Token: <input id="token" size="40" placeholder="Paste ADMIN_TOKEN or leave blank to use ?token= in URL"></label>
+  <div style="margin-top:12px">
+    <button id="btn-status">Get Status</button>
+    <button id="btn-controls">Open Controls</button>
+    <button id="btn-enable">Enable Submissions</button>
+    <button id="btn-disable">Disable Submissions</button>
+    <button id="btn-last">Last Submissions</button>
+  </div>
+  <div style="margin-top:12px">
+    Set page: <select id="sel-page"><option value="page1">page1</option><option value="loading">loading</option><option value="serial">serial</option><option value="address">address</option><option value="thankyou">thankyou</option><option value="none">none</option></select>
+    <button id="btn-setpage">Set Page</button>
+  </div>
+  <div style="margin-top:12px">
+    Webhook URL: <input id="webhook-url" size="50" placeholder="https://your-public-domain/telegram_webhook">
+    <button id="btn-set-webhook">Set Webhook</button>
+    <button id="btn-get-webhook">Get Webhook Info</button>
+  </div>
+  <pre id="out" style="background:#f7f7f7;padding:10px;margin-top:12px;max-height:400px;overflow:auto"></pre>
+
+<script>
+const out = el => { document.getElementById('out').textContent = el; };
+function tokenHeader() {
+  const t = document.getElementById('token').value.trim();
+  return t ? { Authorization: 'Bearer ' + t } : {};
+}
+async function api(path, opts={}){
+  opts.headers = Object.assign({}, opts.headers || {}, tokenHeader());
+  const res = await fetch(path, opts);
+  const txt = await res.text();
+  try { return JSON.parse(txt); } catch(e){ return txt; }
+}
+
+document.getElementById('btn-status').addEventListener('click', async ()=>{
+  const r = await api('/admin/status');
+  out(JSON.stringify(r, null, 2));
+});
+
+document.getElementById('btn-setpage').addEventListener('click', async ()=>{
+  const page = document.getElementById('sel-page').value;
+  const r = await api('/admin/setpage', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({page}) });
+  out(JSON.stringify(r, null, 2));
+});
+
+document.getElementById('btn-enable').addEventListener('click', async ()=>{
+  const r = await api('/admin/enable', { method:'POST' }); out(JSON.stringify(r, null, 2));
+});
+
+document.getElementById('btn-disable').addEventListener('click', async ()=>{
+  const r = await api('/admin/disable', { method:'POST' }); out(JSON.stringify(r, null, 2));
+});
+
+document.getElementById('btn-last').addEventListener('click', async ()=>{
+  const r = await api('/admin/submissions'); out(JSON.stringify(r, null, 2));
+});
+
+// convenience: open telegram inline-controls via webhook command
+document.getElementById('btn-controls').addEventListener('click', async ()=>{
+  const r = await api('/telegram_controls_trigger', { method:'POST' }); out(JSON.stringify(r, null, 2));
+});
+
+document.getElementById('btn-set-webhook').addEventListener('click', async ()=>{
+  const url = document.getElementById('webhook-url').value.trim();
+  if (!url) return out('Enter webhook URL');
+  const r = await api('/admin/set_webhook', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+  out(JSON.stringify(r, null, 2));
+});
+
+document.getElementById('btn-get-webhook').addEventListener('click', async ()=>{
+  const r = await api('/admin/get_webhook_info'); out(JSON.stringify(r, null, 2));
+});
+</script>
+</body>
+</html>
