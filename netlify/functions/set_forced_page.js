@@ -1,4 +1,4 @@
-const { detaPutItem, BASE_APPSTATE } = require('./_deta_helpers');
+const { getConfig, putConfig } = require('./_upstash_helpers');
 
 function authorized(event) {
   const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
@@ -9,15 +9,19 @@ function authorized(event) {
   return q === ADMIN_TOKEN;
 }
 
+const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type,Authorization', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
+
 exports.handler = async function handler(event) {
-  if (!authorized(event)) return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
+  if (event && event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS };
+  if (!authorized(event)) return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
   try {
     const body = event.body ? JSON.parse(event.body) : {};
     const page = body.page === 'none' ? null : (body.page || null);
-    const item = { key: 'config', forcedPage: page };
-    await detaPutItem(BASE_APPSTATE, item);
-    return { statusCode: 200, body: JSON.stringify({ ok: true, forcedPage: page }) };
+    const cfg = await getConfig();
+    cfg.forcedPage = page;
+    await putConfig(cfg);
+    return { statusCode: 200, headers: CORS, body: JSON.stringify({ ok: true, forcedPage: page }) };
   } catch (e) {
-    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: e.message }) };
   }
 };

@@ -13,11 +13,11 @@
 - `DETA_PROJECT_KEY`
 - Optional: `ADMIN_TOKEN`, `DETA_BASE_APPSTATE`, `DETA_BASE_SUBMISSIONS`, `SUBMIT_DELAY_MS`
 
-4) After the site is deployed, set the Telegram webhook to the function URL:
+4) After the site is deployed, set the Telegram webhook to the function URL. For your site the command is:
 
 ```
-# replace <NETLIFY_BASE> with your site base (e.g. my-site.netlify.app)
-curl "https://api.telegram.org/bot$BOT_TOKEN/setWebhook?url=https://<NETLIFY_BASE>/.netlify/functions/telegram_webhook"
+# replace $BOT_TOKEN with your Telegram bot token
+curl "https://api.telegram.org/bot$BOT_TOKEN/setWebhook?url=https://tranquil-alpaca-8b7744.netlify.app/.netlify/functions/telegram_webhook"
 ```
 
 5) Frontend

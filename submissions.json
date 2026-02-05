@@ -110,5 +110,95 @@
       "fname": "garret",
       "lname": "mavubs"
     }
+  },
+  {
+    "timestamp": "2026-02-05T09:43:43.654Z",
+    "ip": "::1",
+    "geo": {
+      "city": null,
+      "region": null,
+      "postal": null
+    },
+    "data": {
+      "serial": "ABC123",
+      "name": "Test User",
+      "phone": "+10000000000",
+      "address": "123 Test St"
+    }
+  },
+  {
+    "timestamp": "2026-02-05T09:54:10.075Z",
+    "ip": "::1",
+    "geo": {
+      "city": null,
+      "region": null,
+      "postal": null
+    },
+    "data": {
+      "fname": "UIFirst",
+      "step": "name",
+      "lname": "UILast"
+    }
+  },
+  {
+    "timestamp": "2026-02-05T09:54:13.467Z",
+    "ip": "::1",
+    "geo": {
+      "city": null,
+      "region": null,
+      "postal": null
+    },
+    "data": {
+      "serial": "SER-UI-001",
+      "step": "serial"
+    }
+  },
+  {
+    "timestamp": "2026-02-05T09:56:38.343Z",
+    "ip": "::1",
+    "geo": {
+      "city": "New York City",
+      "region": "New York",
+      "postal": "10013"
+    },
+    "data": {
+      "fname": "SeqFirst",
+      "step": "name",
+      "lname": "SeqLast"
+    }
+  },
+  {
+    "timestamp": "2026-02-05T09:56:45.106Z",
+    "ip": "::1",
+    "geo": {
+      "city": null,
+      "region": null,
+      "postal": null
+    },
+    "data": {
+      "serial": "SEQ-12345",
+      "step": "serial"
+    }
+  },
+  {
+    "timestamp": "2026-02-05T09:56:49.176Z",
+    "ip": "::1",
+    "geo": {
+      "city": "New York City",
+      "region": "New York",
+      "postal": "10013"
+    },
+    "data": {
+      "fname": "SeqFirst",
+      "step": "final",
+      "serial": "SEQ-12345",
+      "address": {
+        "zip": "00001",
+        "street": "10 Seq Lane",
+        "state": "SQ",
+        "city": "Seqville"
+      },
+      "lname": "SeqLast"
+    }
   }
 ]

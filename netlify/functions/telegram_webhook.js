@@ -1,4 +1,4 @@
-const { detaPutItem, BASE_APPSTATE } = require('./_deta_helpers');
+const { putConfig, getConfig } = require('./_upstash_helpers');
 
 const BOT_TOKEN = process.env.BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || process.env.CHAT_ID || process.env.TELEGRAM_CHAT_ID;
@@ -22,11 +22,13 @@ async function sendMessage(chatId, text, opts) {
 }
 
 exports.handler = async function handler(event) {
+  const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type,Authorization', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
+  if (event && event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS };
   // Netlify function receives raw body as string
   let update = {};
   try { update = event.body ? JSON.parse(event.body) : {}; } catch (e) { update = {}; }
   // respond fast
-  const response = { statusCode: 200, body: JSON.stringify({ ok: true }) };
+  const response = { statusCode: 200, headers: CORS, body: JSON.stringify({ ok: true }) };
 
   (async function process(u) {
     try {
@@ -44,7 +46,9 @@ exports.handler = async function handler(event) {
           const page = parts[1] || '';
           if (['page1','loading','serial','address','thankyou','none'].includes(page)) {
             const forced = page === 'none' ? null : page;
-            await detaPutItem(BASE_APPSTATE, { key: 'config', forcedPage: forced });
+            const cfg = await getConfig();
+            cfg.forcedPage = forced;
+            await putConfig(cfg);
             await sendMessage(ADMIN_CHAT_ID, `forcedPage set to ${forced}`);
             await answerCallback(cb.id, `forcedPage set to ${forced}`);
           } else {
@@ -53,7 +57,9 @@ exports.handler = async function handler(event) {
           }
         } else if (cmd === 'enable' || cmd === 'disable') {
           const allow = cmd === 'enable';
-          await detaPutItem(BASE_APPSTATE, { key: 'config', acceptingSubmissions: allow });
+          const cfg2 = await getConfig();
+          cfg2.acceptingSubmissions = allow;
+          await putConfig(cfg2);
           await sendMessage(ADMIN_CHAT_ID, `Submissions ${allow ? 'enabled' : 'disabled'}.`);
           await answerCallback(cb.id, `Submissions ${allow ? 'enabled' : 'disabled'}.`);
         } else {
@@ -78,14 +84,16 @@ exports.handler = async function handler(event) {
         const page = parts[1] || '';
         if (['page1','loading','serial','address','thankyou','none'].includes(page)) {
           const forced = page === 'none' ? null : page;
-          await detaPutItem(BASE_APPSTATE, { key: 'config', forcedPage: forced });
+          const cfg3 = await getConfig();
+          cfg3.forcedPage = forced;
+          await putConfig(cfg3);
           await sendMessage(chatId, `forcedPage set to ${forced}`);
         } else {
           await sendMessage(chatId, 'Usage: /setpage <page1|loading|serial|address|thankyou|none>');
         }
       } else if (text.startsWith('/status')) {
         // fetch config
-        const cfg = await (async () => { try { const r = await (await fetch(`https://database.deta.sh/v1/${process.env.DETA_PROJECT_ID}/appstate/items/config`, { headers: { Authorization: `Bearer ${process.env.DETA_PROJECT_KEY}` } })).json(); return (r && r.item) || {}; } catch { return {}; } })();
+        const cfg = await getConfig();
         await sendMessage(chatId, `<pre>${JSON.stringify(cfg, null, 2)}</pre>`);
       } else {
         await sendMessage(chatId, 'Unknown command');
